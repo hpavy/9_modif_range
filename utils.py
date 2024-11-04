@@ -112,36 +112,56 @@ def init_model(f, hyper_param, device, folder_result):
         optimizer, gamma=hyper_param["gamma_scheduler"]
     )
     loss = nn.MSELoss()
-    # On regarde si notre modèle n'existe pas déjà
-    if Path(folder_result + "/model_weights.pth").exists():
+    # Si on fait du transfert 
+    if hyper_param["transfert_learning"] == 'None' :
+        # On regarde si notre modèle n'existe pas déjà
+        if Path(folder_result + "/model_weights.pth").exists():
+            # Charger l'état du modèle et de l'optimiseur
+            checkpoint = torch.load(folder_result + "/model_weights.pth")
+            model.load_state_dict(checkpoint["model_state_dict"])
+            optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
+            scheduler.load_state_dict(checkpoint["scheduler_state_dict"])
+            print("\nModèle chargé\n", file=f)
+            print("\nModèle chargé\n")
+            csv_train = read_csv(folder_result + "/train_loss.csv")
+            csv_test = read_csv(folder_result + "/test_loss.csv")
+            train_loss = {
+                "total": list(csv_train["total"]),
+                "data": list(csv_train["data"]),
+                "pde": list(csv_train["pde"]),
+            }
+            test_loss = {
+                "total": list(csv_test["total"]),
+                "data": list(csv_test["data"]),
+                "pde": list(csv_test["pde"]),
+            }
+            print("\nLoss chargée\n", file=f)
+            print("\nLoss chargée\n")
+
+        else:
+            print("Nouveau modèle\n", file=f)
+            print("Nouveau modèle\n")
+            train_loss = {"total": [], "data": [], "pde": []}
+            test_loss = {"total": [], "data": [], "pde": []}
+    else :
+        print('transfert learning')
         # Charger l'état du modèle et de l'optimiseur
-        checkpoint = torch.load(folder_result + "/model_weights.pth")
+        checkpoint = torch.load(hyper_param['transfert_learning'] + "/model_weights.pth")
         model.load_state_dict(checkpoint["model_state_dict"])
-        optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
-        scheduler.load_state_dict(checkpoint["scheduler_state_dict"])
         print("\nModèle chargé\n", file=f)
         print("\nModèle chargé\n")
-        csv_train = read_csv(folder_result + "/train_loss.csv")
-        csv_test = read_csv(folder_result + "/test_loss.csv")
         train_loss = {
-            "total": list(csv_train["total"]),
-            "data": list(csv_train["data"]),
-            "pde": list(csv_train["pde"]),
+            "total": [],
+            "data": [],
+            "pde": [],
         }
         test_loss = {
-            "total": list(csv_test["total"]),
-            "data": list(csv_test["data"]),
-            "pde": list(csv_test["pde"]),
+            "total": [],
+            "data": [],
+            "pde": [],
         }
-        print("\nLoss chargée\n", file=f)
-        print("\nLoss chargée\n")
-
-    else:
-        print("Nouveau modèle\n", file=f)
-        print("Nouveau modèle\n")
-        train_loss = {"total": [], "data": [], "pde": []}
-        test_loss = {"total": [], "data": [], "pde": []}
     return model, optimizer, scheduler, loss, train_loss, test_loss
+
 
 
 if __name__ == "__main__":
