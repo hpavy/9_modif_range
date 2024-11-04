@@ -16,7 +16,7 @@ time_start = time.time()
 
 ############# VARIABLES ################
 
-folder_result_name = "7_stronger"  # name of the result folder
+folder_result_name = "8_stronger"  # name of the result folder
 folder_result = "results/" + folder_result_name
 
 
@@ -41,7 +41,7 @@ hyper_param_init = {
     "nb_neurons": 64,
     "n_pde_test": 5000,
     "n_data_test": 5000,
-    "nb_points_axes": 12,  # le nombre de points pris par axe par pas de temps
+    "nb_points_axes": 15,  # le nombre de points pris par axe par pas de temps
     "x_min": 0.15,
     "x_max": 0.325,
     "y_min": -0.1,
